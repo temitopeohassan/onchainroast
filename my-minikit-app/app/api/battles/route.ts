@@ -16,11 +16,6 @@ const ROAST_BATTLE_ABI = [
 
 const CONTRACT_ADDRESS = "0x904de529043aDaCddDEEc9Ef4FA81AC452608AeB" as `0x${string}`;
 
-interface Follower {
-  fid: number;
-  username: string;
-}
-
 function getContract() {
   if (!process.env.RPC_URL) {
     throw new Error("RPC_URL environment variable is not set");
@@ -35,8 +30,7 @@ function getContract() {
   return new ethers.Contract(CONTRACT_ADDRESS, ROAST_BATTLE_ABI, wallet);
 }
 
-async function getFollowers(fid: number) {
-  // Return mock data
+function getMockFollowers() {
   return [
     { fid: 1, username: "follower1" },
     { fid: 2, username: "follower2" },
@@ -46,19 +40,9 @@ async function getFollowers(fid: number) {
   ];
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const fid = searchParams.get("fid");
-
-    if (!fid) {
-      return NextResponse.json(
-        { error: "Missing fid parameter" },
-        { status: 400 }
-      );
-    }
-
-    const followers = await getFollowers(parseInt(fid));
+    const followers = getMockFollowers();
     return NextResponse.json(followers);
   } catch (error) {
     console.error("Error in GET /api/battles:", error);

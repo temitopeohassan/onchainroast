@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
           title: "Onchain Roast Battle",
           action: {
             type: "launch_frame",
-            splashBackgroundColor: "#000000",
+            splashBackgroundColor: "#E5E5E5",
             url: "https://onchainroast.vercel.app/",
             splashImageUrl: "https://onchainroast.vercel.app/splash.png",
             name: "Onchain Roast Battle"

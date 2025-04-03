@@ -18,6 +18,7 @@ export default function App() {
   const [selectedFollower, setSelectedFollower] = useState<Follower | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [notificationSent, setNotificationSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isFrameReady) {
@@ -28,11 +29,18 @@ export default function App() {
   useEffect(() => {
     async function fetchFollowers() {
       try {
-        const res = await fetch("/api/battles");
+        // In a real app, you would get the FID from the user's wallet
+        // For now, we'll use a mock FID
+        const mockFid = 1; // Replace with actual FID
+        const res = await fetch(`/api/battles?fid=${mockFid}`);
+        if (!res.ok) {
+          throw new Error("Failed to fetch followers");
+        }
         const data = await res.json();
         setFollowers(data);
       } catch (error) {
         console.error("Error fetching followers:", error);
+        setError("Failed to load followers. Please try again later.");
       }
     }
     fetchFollowers();
@@ -78,6 +86,7 @@ export default function App() {
       setNotificationSent(true);
     } catch (error) {
       console.error("Error creating battle:", error);
+      setError("Failed to create battle. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +116,11 @@ export default function App() {
           <h1 className="text-2xl font-bold text-center">🔥 Onchain Roast Battles 🔥</h1>
           <p className="text-center text-gray-600">Tag a follower to start a roast battle!</p>
           
-          {!notificationSent ? (
+          {error ? (
+            <div className="text-center bg-red-100 p-4 rounded-lg shadow">
+              <p className="text-red-600">{error}</p>
+            </div>
+          ) : !notificationSent ? (
             <div className="space-y-4">
               <div className="bg-white p-4 rounded-lg shadow">
                 <h2 className="font-semibold mb-2">Select a follower to challenge:</h2>

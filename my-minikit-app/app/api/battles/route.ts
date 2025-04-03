@@ -16,29 +16,59 @@ const ROAST_BATTLE_ABI = [
 
 const CONTRACT_ADDRESS = "0x904de529043aDaCddDEEc9Ef4FA81AC452608AeB" as `0x${string}`;
 
-if (!process.env.RPC_URL) {
-  throw new Error("RPC_URL environment variable is not set");
+function getContract() {
+  if (!process.env.RPC_URL) {
+    throw new Error("RPC_URL environment variable is not set");
+  }
+
+  if (!process.env.PRIVATE_KEY) {
+    throw new Error("PRIVATE_KEY environment variable is not set");
+  }
+
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  return new ethers.Contract(CONTRACT_ADDRESS, ROAST_BATTLE_ABI, wallet);
 }
 
-if (!process.env.PRIVATE_KEY) {
-  throw new Error("PRIVATE_KEY environment variable is not set");
+async function getFollowers(fid: number) {
+  if (!process.env.FARCASTER_API_KEY) {
+    throw new Error("FARCASTER_API_KEY environment variable is not set");
+  }
+
+  const response = await fetch(
+    `https://api.farcaster.xyz/v2/followers?fid=${fid}`,
+    {
+      headers: {
+        "Authorization": `Bearer ${process.env.FARCASTER_API_KEY}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch followers from Farcaster");
+  }
+
+  const data = await response.json();
+  return data.result.users.map((user: any) => ({
+    fid: user.fid,
+    username: user.username,
+  }));
 }
 
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-const contract = new ethers.Contract(CONTRACT_ADDRESS, ROAST_BATTLE_ABI, wallet);
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // In a real app, you would fetch followers from your social graph
-    // For now, we'll return mock data
-    const mockFollowers = [
-      { fid: 1, username: "follower1" },
-      { fid: 2, username: "follower2" },
-      { fid: 3, username: "follower3" },
-    ];
+    const searchParams = request.nextUrl.searchParams;
+    const fid = searchParams.get("fid");
 
-    return NextResponse.json(mockFollowers);
+    if (!fid) {
+      return NextResponse.json(
+        { error: "Missing fid parameter" },
+        { status: 400 }
+      );
+    }
+
+    const followers = await getFollowers(parseInt(fid));
+    return NextResponse.json(followers);
   } catch (error) {
     console.error("Error fetching followers:", error);
     return NextResponse.json(
@@ -60,6 +90,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const contract = getContract();
     const tx = await contract.createBattle(challenger, opponent);
     await tx.wait();
 

@@ -53,26 +53,34 @@ async function getFollowers(fid: number) {
     throw new Error("NEYNAR_API_KEY environment variable is not set");
   }
 
-  const response = await fetch(
-    `https://api.neynar.com/v2/farcaster/followers?fid=${fid}&viewer_fid=${fid}`,
-    {
-      headers: {
-        "api_key": process.env.NEYNAR_API_KEY,
-      },
+  try {
+    const response = await fetch(
+      `https://api.neynar.com/v2/farcaster/followers?fid=${fid}&viewer_fid=${fid}`,
+      {
+        headers: {
+          "api_key": process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Neynar API error:", errorData);
+      throw new Error(`Neynar API error: ${errorData.message || 'Unknown error'}`);
     }
-  );
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error("Neynar API error:", errorData);
-    throw new Error("Failed to fetch followers from Neynar");
+    const data = await response.json() as NeynarResponse;
+    return data.users.map((user) => ({
+      fid: user.fid,
+      username: user.username,
+    }));
+  } catch (error) {
+    console.error("Error in getFollowers:", error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch followers: ${error.message}`);
+    }
+    throw new Error("Failed to fetch followers: Unknown error");
   }
-
-  const data = await response.json() as NeynarResponse;
-  return data.users.map((user) => ({
-    fid: user.fid,
-    username: user.username,
-  }));
 }
 
 export async function GET(request: NextRequest) {
@@ -90,9 +98,9 @@ export async function GET(request: NextRequest) {
     const followers = await getFollowers(parseInt(fid));
     return NextResponse.json(followers);
   } catch (error) {
-    console.error("Error fetching followers:", error);
+    console.error("Error in GET /api/battles:", error);
     return NextResponse.json(
-      { error: "Failed to fetch followers" },
+      { error: error instanceof Error ? error.message : "Failed to fetch followers" },
       { status: 500 }
     );
   }

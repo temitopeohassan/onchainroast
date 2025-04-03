@@ -1,26 +1,20 @@
 "use client";
 
-import {
-  useMiniKit,
-  useAddFrame,
-  useOpenUrl,
-} from "@coinbase/onchainkit/minikit";
-import { Name, Identity, Badge } from "@coinbase/onchainkit/identity";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Snake from "./components/snake";
+import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import Check from "./svg/Check";
+import { useMiniKit } from "@coinbase/onchainkit/minikit";
+import { Name, Identity } from "@coinbase/onchainkit/identity";
 
-const SCHEMA_UID =
-  "0x7889a09fb295b0a0c63a3d7903c4f00f7896cca4fa64d2c1313f8547390b7d39";
+interface Battle {
+  id: number;
+  challenger: string;
+  opponent: string;
+}
 
 export default function App() {
-  const { setFrameReady, isFrameReady, context } = useMiniKit();
-  const [frameAdded, setFrameAdded] = useState(false);
-
-  const addFrame = useAddFrame();
-  const openUrl = useOpenUrl();
+  const { setFrameReady, isFrameReady } = useMiniKit();
   const { address } = useAccount();
+  const [battles, setBattles] = useState<Battle[]>([]);
 
   useEffect(() => {
     if (!isFrameReady) {
@@ -28,76 +22,65 @@ export default function App() {
     }
   }, [setFrameReady, isFrameReady]);
 
-  const handleAddFrame = useCallback(async () => {
-    const frameAdded = await addFrame();
-    setFrameAdded(Boolean(frameAdded));
-  }, [addFrame, setFrameAdded]);
-
-  const saveFrameButton = useMemo(() => {
-    if (context && !context.client.added) {
-      return (
-        <button
-          type="button"
-          onClick={handleAddFrame}
-          className="cursor-pointer bg-transparent font-semibold text-sm"
-        >
-          + SAVE FRAME
-        </button>
-      );
+  useEffect(() => {
+    async function fetchBattles() {
+      try {
+        const res = await fetch("/api/battles");
+        const data = await res.json();
+        setBattles(data);
+      } catch (error) {
+        console.error("Error fetching battles:", error);
+      }
     }
-
-    if (frameAdded) {
-      return (
-        <div className="flex items-center space-x-1 text-sm font-semibold animate-fade-out">
-          <Check />
-          <span>SAVED</span>
-        </div>
-      );
-    }
-
-    return null;
-  }, [context, handleAddFrame, frameAdded]);
+    fetchBattles();
+  }, []);
 
   return (
-    <div className="flex flex-col min-h-screen sm:min-h-[820px] font-sans bg-[#E5E5E5] text-black items-center snake-dark relative">
-      <div className="w-screen max-w-[520px]">
-        <header className="mr-2 mt-1 flex justify-between">
-          <div className="justify-start pl-1">
+    <div className="flex flex-col min-h-screen sm:min-h-[820px] font-sans bg-[#E5E5E5] text-black items-center relative">
+      <div className="w-screen max-w-[520px] p-4">
+        <header className="flex justify-between items-center mb-4">
+          <div>
             {address ? (
               <Identity
                 address={address}
-                schemaId={SCHEMA_UID}
                 className="!bg-inherit p-0 [&>div]:space-x-2"
               >
-                <Name className="text-inherit">
-                  <Badge
-                    tooltip="High Scorer"
-                    className="!bg-inherit high-score-badge"
-                  />
-                </Name>
+                <Name className="text-inherit" />
               </Identity>
             ) : (
-              <div className="pl-2 pt-1 text-gray-500 text-sm font-semibold">
+              <div className="text-gray-500 text-sm font-semibold">
                 NOT CONNECTED
               </div>
             )}
           </div>
-          <div className="pr-1 justify-end">{saveFrameButton}</div>
         </header>
 
-        <main className="font-serif">
-          <Snake />
+        <main className="space-y-4">
+          <h1 className="text-2xl font-bold text-center">🔥 Onchain Roast Battles 🔥</h1>
+          <p className="text-center text-gray-600">Engage in epic roast battles on Base!</p>
+          
+          {battles.length > 0 ? (
+            <ul className="space-y-4">
+              {battles.map((battle) => (
+                <li key={battle.id} className="bg-white p-4 rounded-lg shadow">
+                  <p className="font-bold">Battle #{battle.id}</p>
+                  <p className="text-sm">Challenger: {battle.challenger}</p>
+                  <p className="text-sm">Opponent: {battle.opponent}</p>
+                  <a
+                    href={`/battle/${battle.id}`}
+                    className="mt-2 inline-block bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+                  >
+                    View Battle
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-center">
+              <p>Loading battles...</p>
+            </div>
+          )}
         </main>
-
-        <footer className="absolute bottom-4 flex items-center w-screen max-w-[520px] justify-center">
-          <button
-            type="button"
-            className="mt-4 ml-4 px-2 py-1 flex justify-start rounded-2xl font-semibold opacity-40 border border-black text-xs"
-            onClick={() => openUrl("https://base.org/builders/minikit")}
-          >
-            BUILT ON BASE WITH MINIKIT
-          </button>
-        </footer>
       </div>
     </div>
   );

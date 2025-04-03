@@ -16,9 +16,13 @@ contract RoastBattleTest is Test {
     function testCreateBattle() public {
         vm.prank(challenger);
         battle.createBattle(opponent);
-        (address c, address o,,,) = battle.battles(1);
+        (address c, address o, string memory cRoast, string memory oRoast, uint256 startTime, uint256 endTime, bool finalized, address winner) = battle.battles(1);
         assertEq(c, challenger);
         assertEq(o, opponent);
+        assertEq(cRoast, "");
+        assertEq(oRoast, "");
+        assertEq(finalized, false);
+        assertEq(winner, address(0));
     }
 
     function testSubmitRoast() public {
@@ -26,8 +30,9 @@ contract RoastBattleTest is Test {
         battle.createBattle(opponent);
         vm.prank(challenger);
         battle.submitRoast(1, "Challenger's roast");
-        (, , string memory cRoast,,) = battle.battles(1);
+        (address c, address o, string memory cRoast, string memory oRoast, uint256 startTime, uint256 endTime, bool finalized, address winner) = battle.battles(1);
         assertEq(cRoast, "Challenger's roast");
+        assertEq(oRoast, "");
     }
 }
 

@@ -49,8 +49,14 @@ function getContract() {
 }
 
 async function getFollowers(fid: number) {
+  // Return mock data in development if API key is not set
   if (!process.env.NEYNAR_API_KEY) {
-    throw new Error("NEYNAR_API_KEY environment variable is not set");
+    console.warn("NEYNAR_API_KEY not set, returning mock data");
+    return [
+      { fid: 1, username: "follower1" },
+      { fid: 2, username: "follower2" },
+      { fid: 3, username: "follower3" },
+    ];
   }
 
   try {

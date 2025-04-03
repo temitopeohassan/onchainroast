@@ -16,20 +16,22 @@ const ROAST_BATTLE_ABI = [
 
 const CONTRACT_ADDRESS = "0x904de529043aDaCddDEEc9Ef4FA81AC452608AeB" as `0x${string}`;
 
-interface FarcasterUser {
+interface NeynarUser {
   fid: number;
   username: string;
   display_name: string;
-  pfp_url: string;
+  pfp: {
+    url: string;
+  };
   profile: {
-    bio: string;
+    bio: {
+      text: string;
+    };
   };
 }
 
-interface FarcasterResponse {
-  result: {
-    users: FarcasterUser[];
-  };
+interface NeynarResponse {
+  users: NeynarUser[];
 }
 
 function getContract() {
@@ -47,25 +49,27 @@ function getContract() {
 }
 
 async function getFollowers(fid: number) {
-  if (!process.env.FARCASTER_API_KEY) {
-    throw new Error("FARCASTER_API_KEY environment variable is not set");
+  if (!process.env.NEYNAR_API_KEY) {
+    throw new Error("NEYNAR_API_KEY environment variable is not set");
   }
 
   const response = await fetch(
-    `https://api.neynar.com/v2/farcaster/followers`,
+    `https://api.neynar.com/v2/farcaster/followers?fid=${fid}&viewer_fid=${fid}`,
     {
       headers: {
-        "Authorization": `Bearer ${process.env.FARCASTER_API_KEY}`,
+        "api_key": process.env.NEYNAR_API_KEY,
       },
     }
   );
 
   if (!response.ok) {
-    throw new Error("Failed to fetch followers from Farcaster");
+    const errorData = await response.json();
+    console.error("Neynar API error:", errorData);
+    throw new Error("Failed to fetch followers from Neynar");
   }
 
-  const data = await response.json() as FarcasterResponse;
-  return data.result.users.map((user) => ({
+  const data = await response.json() as NeynarResponse;
+  return data.users.map((user) => ({
     fid: user.fid,
     username: user.username,
   }));

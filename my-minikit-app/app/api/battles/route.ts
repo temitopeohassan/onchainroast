@@ -16,22 +16,9 @@ const ROAST_BATTLE_ABI = [
 
 const CONTRACT_ADDRESS = "0x904de529043aDaCddDEEc9Ef4FA81AC452608AeB" as `0x${string}`;
 
-interface NeynarUser {
+interface Follower {
   fid: number;
   username: string;
-  display_name: string;
-  pfp: {
-    url: string;
-  };
-  profile: {
-    bio: {
-      text: string;
-    };
-  };
-}
-
-interface NeynarResponse {
-  users: NeynarUser[];
 }
 
 function getContract() {
@@ -49,44 +36,14 @@ function getContract() {
 }
 
 async function getFollowers(fid: number) {
-  // Return mock data in development if API key is not set
-  if (!process.env.NEYNAR_API_KEY) {
-    console.warn("NEYNAR_API_KEY not set, returning mock data");
-    return [
-      { fid: 1, username: "follower1" },
-      { fid: 2, username: "follower2" },
-      { fid: 3, username: "follower3" },
-    ];
-  }
-
-  try {
-    const response = await fetch(
-      `https://api.neynar.com/v2/farcaster/followers?fid=${fid}&viewer_fid=${fid}`,
-      {
-        headers: {
-          "api_key": process.env.NEYNAR_API_KEY,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Neynar API error:", errorData);
-      throw new Error(`Neynar API error: ${errorData.message || 'Unknown error'}`);
-    }
-
-    const data = await response.json() as NeynarResponse;
-    return data.users.map((user) => ({
-      fid: user.fid,
-      username: user.username,
-    }));
-  } catch (error) {
-    console.error("Error in getFollowers:", error);
-    if (error instanceof Error) {
-      throw new Error(`Failed to fetch followers: ${error.message}`);
-    }
-    throw new Error("Failed to fetch followers: Unknown error");
-  }
+  // Return mock data
+  return [
+    { fid: 1, username: "follower1" },
+    { fid: 2, username: "follower2" },
+    { fid: 3, username: "follower3" },
+    { fid: 4, username: "follower4" },
+    { fid: 5, username: "follower5" },
+  ];
 }
 
 export async function GET(request: NextRequest) {

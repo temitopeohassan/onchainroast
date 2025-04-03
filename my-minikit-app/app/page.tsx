@@ -59,18 +59,18 @@ export default function App() {
         throw new Error("Failed to create battle");
       }
 
-      const battleData = await battleResponse.json();
+      await battleResponse.json();
 
       // Send notification to tagged follower
       await sendFrameNotification({
         fid: selectedFollower.fid,
         title: "Roast Battle Challenge!",
-        body: `You've been challenged to a roast battle! Click to accept.`,
+        body: `You&apos;ve been challenged to a roast battle! Click to accept.`,
       });
 
-      // Send notification to challenger's followers
+      // Send notification to challenger&apos;s followers
       await sendFrameNotification({
-        fid: selectedFollower.fid, // In a real app, you'd send to all followers
+        fid: selectedFollower.fid, // In a real app, you&apos;d send to all followers
         title: "New Roast Battle!",
         body: `A new roast battle is starting! Click to watch and vote.`,
       });
@@ -140,7 +140,7 @@ export default function App() {
             <div className="text-center bg-white p-4 rounded-lg shadow">
               <h2 className="text-xl font-bold text-green-600 mb-2">Battle Created!</h2>
               <p className="text-gray-600">
-                Your follower has been notified. They'll need to accept the challenge to start the battle.
+                Your follower has been notified. They&apos;ll need to accept the challenge to start the battle.
               </p>
             </div>
           )}

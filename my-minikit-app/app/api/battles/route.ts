@@ -28,7 +28,7 @@ const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 const contract = new ethers.Contract(CONTRACT_ADDRESS, ROAST_BATTLE_ABI, wallet);
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // In a real app, you would fetch followers from your social graph
     // For now, we'll return mock data

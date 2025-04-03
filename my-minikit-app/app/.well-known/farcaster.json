@@ -3,7 +3,7 @@
     "frame": {
       "buttonTitle": "Launch undefined",
       "splashBackgroundColor": "#E5E5E5",
-      "webhookUrl": "https://onchainroast.vercel.app//api/webhook",
+      "webhookUrl": "https://onchainroast.vercel.app/api/webhook",
       "name": "Onchain Roast Battle",
       "version": "1",
       "iconUrl": "https://onchainroast.vercel.app/icon.png",

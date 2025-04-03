@@ -1,14 +1,14 @@
 {
-    "button": {
-      "title": "Onchain Roast Battle",
-      "action": {
-        "type": "launch_frame",
-        "splashBackgroundColor": "#000000",
-        "url": "https://onchainroast.vercel.app/",
-        "splashImageUrl": "https://onchainroast.vercel.app/splash.png",
-        "name": "Onchain Roast Battle"
-      }
-    },
-    "version": "next",
-    "imageUrl": "https://onchainroast.vercel.app/image.png"
+    "accountAssociation": {},
+    "frame": {
+      "buttonTitle": "Launch undefined",
+      "splashBackgroundColor": "#E5E5E5",
+      "webhookUrl": "https://onchainroast.vercel.app//api/webhook",
+      "name": "Onchain Roast Battle",
+      "version": "1",
+      "iconUrl": "https://onchainroast.vercel.app/icon.png",
+      "homeUrl": "https://onchainroast.vercel.app/",
+      "imageUrl": "https://onchainroast.vercel.app/image.png",
+      "splashImageUrl": "https://onchainroast.vercel.app/splash.png"
+    }
   }

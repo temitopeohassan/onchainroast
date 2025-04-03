@@ -32,7 +32,6 @@ export default function VotingPage() {
   const { address } = useAccount();
   const params = useParams();
   const [roasts, setRoasts] = useState<Roast[]>([]);
-  const [selectedRoast, setSelectedRoast] = useState<number | null>(null);
 
   const { writeContract } = useWriteContract();
 

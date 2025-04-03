@@ -52,7 +52,7 @@ async function getFollowers(fid: number) {
   }
 
   const response = await fetch(
-    `https://api.farcaster.xyz/v2/followers?fid=${fid}`,
+    `https://api.neynar.com/v2/farcaster/followers?fid=${fid}`,
     {
       headers: {
         "Authorization": `Bearer ${process.env.FARCASTER_API_KEY}`,
